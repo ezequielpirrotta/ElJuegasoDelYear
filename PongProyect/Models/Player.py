@@ -19,6 +19,10 @@ class Player():
     def move(self, speed):
         self.pos_y += speed
     
-    def set_pos_default(self):
+    def point(self):
+        self.points += 1 
+    
+    def set_default(self):
         self.pos_x = self.default_pos[0]
         self.pos_y = self.default_pos[1]
+        self.points = 0 
