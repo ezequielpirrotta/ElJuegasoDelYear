@@ -1,6 +1,5 @@
 import pygame
 import sys
-import Models
 from Models.Player import Player
 pygame.init
 from pygame.locals import *
@@ -38,7 +37,7 @@ ball_speed_x = 3
 ball_speed_y = 3
 
 ## Points system ###
-max_points = 3
+max_points = 7
 
 game_over = False
 running = True
@@ -48,10 +47,19 @@ quit_box = Rect(window_width/2 + 20, window_height/2, 150, 50)
 font_1 = pygame.font.SysFont("Comic Sans MS", 30)
 game_over_box = Rect(window_width/2 - 237/2, window_height/2 + 20 - 150, 237, 50)
 font_2 = pygame.font.SysFont("Comic Sans MS", 20)
+game_menu_box = Rect(window_width/2 - 237/2, window_height/2 + 20 - 150, 237, 50)
+font_3 = pygame.font.SysFont("Comic Sans MS", 50)
 
 ### Functions ###
+def draw_text(screen, font, text, text_colour, pos):
+    text = font.render(text, True, text_colour)
+    screen.blit(text, (pos[0],pos[1]))
 
-def show_game_over(player_1, player_2, ball_speed_x, ball_speed_y):
+
+def show_start_menu():
+    draw_text(screen, font_2, "Pong", WHITE, BLUE, screen.get_width()/2)
+
+def show_game_over(player_1, player_2, ball_speed):
     
     if player_1.points == max_points:
         game_over_text = font_2.render("Game over! Player 1 wins!!", True, WHITE)
@@ -77,22 +85,21 @@ def show_game_over(player_1, player_2, ball_speed_x, ball_speed_y):
                 if continue_box.collidepoint(pygame.mouse.get_pos()):
                     player_1.set_default()
                     player_2.set_default()
-                    ball_speed_x += 3
-                    ball_speed_y += 3
+                    ball_speed[0] = 3
+                    ball_speed[1] = 3
+                    #print(ball_speed_x)
                     waiting = False
                 elif quit_box.collidepoint(pygame.mouse.get_pos()):
                     sys.exit()
+    return ball_speed
 
 
-
+show_start_menu()
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         
-        #if event.type == pygame.KEYDOWN:
-        #    ball_x += ball_speed_x
-        #    ball_y += ball_speed_y
         ### Movements with keys ###
         # Player 1
         if event.type == pygame.KEYDOWN:
@@ -179,9 +186,10 @@ while running:
         ball_speed_y = 0
         ball_x = window_width / 2
         ball_y = window_height / 2
-        show_game_over(player_1, player_2, ball_speed_x, ball_speed_y)    
-    
-
+        
+        ball_speed = show_game_over(player_1, player_2, [ball_speed_x, ball_speed_y])    
+        ball_speed_x = ball_speed[0]
+        ball_speed_y = ball_speed[1]
         
     #refresh window
     pygame.display.flip()
