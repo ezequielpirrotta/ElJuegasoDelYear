@@ -21,7 +21,7 @@ player_height = 90
 
 screen = pygame.display.set_mode((window_width, window_height))
 #start_bg_img = pygame.image.load('images/star_night_resize_800x600.gif')
-start_bg_img = pygame.transform.scale(start_bg_img,(window_width,window_height))
+#start_bg_img = pygame.transform.scale(start_bg_img,(window_width,window_height))
 
 clock = pygame.time.Clock()
 
@@ -56,9 +56,12 @@ font_3 = pygame.font.SysFont("Comic Sans MS", 50)
 ##def draw_text(screen, font, text, text_colour, pos):
 
 
-def show_start_menu(ball_speed, game_state):
+def show_start_menu():
     
-    screen.fill()
+    global ball_speed_x
+    global ball_speed_y
+    global running
+    #screen.fill()
     title_text = font_3.render("Pong", True, WHITE)
     button1_text = font_1.render("Play", True, WHITE)
     button2_text = font_1.render("Quit", True, WHITE)
@@ -69,7 +72,7 @@ def show_start_menu(ball_speed, game_state):
     screen.blit(button1_text, (window_width/2 - 170  + (continue_box.width - button1_text.get_width())/2, window_height/2))
     screen.blit(button2_text, (window_width/2 + 20 + (quit_box.width - button2_text.get_width())/2, window_height/2))
     pygame.display.flip()
-    #print("llegué")
+    
     waiting = True
 
     while waiting:
@@ -78,20 +81,25 @@ def show_start_menu(ball_speed, game_state):
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN and pygame.BUTTON_LEFT:
                 if continue_box.collidepoint(pygame.mouse.get_pos()):
+                    print("llegué")
                     player_1.set_default()
                     player_2.set_default()
-                    ball_speed[0] = 3
-                    ball_speed[1] = 3
+                    ball_speed_x = 3
+                    ball_speed_y = 3
                     waiting = False
-                    game_state = True
+                    running = True
                 elif quit_box.collidepoint(pygame.mouse.get_pos()):
                     sys.exit()
-    return  {
-                "ball": ball_speed,
-                "game_state": game_state
-            }
 
-def show_game_over(player_1, player_2, ball_speed, game_state):
+
+def show_game_over():
+    
+
+    global player_1
+    global player_2
+    global ball_speed_x
+    global ball_speed_y
+    global running
     
     if player_1.points == max_points:
         game_over_text = font_2.render("Game over! Player 1 wins!!", True, WHITE)
@@ -110,7 +118,6 @@ def show_game_over(player_1, player_2, ball_speed, game_state):
     pygame.display.flip()
     
     waiting = True
-    #print(running)
     while waiting:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -119,27 +126,23 @@ def show_game_over(player_1, player_2, ball_speed, game_state):
                 if continue_box.collidepoint(pygame.mouse.get_pos()):
                     player_1.set_default()
                     player_2.set_default()
-                    ball_speed[0] = 3
-                    ball_speed[1] = 3
-                    #print(ball_speed_x)
+                    ball_speed_x = 3
+                    ball_speed_y = 3
                     waiting = False
                 elif quit_box.collidepoint(pygame.mouse.get_pos()):
-                    game_state = False
+                    running = False
                     waiting = False
-    return  {
-                "ball": ball_speed,
-                "game_state": game_state
-            }
+
 
 
 game_over = False
 running = False
 
 if(not running):
-    running = show_start_menu([ball_speed_x, ball_speed_y], running)
+    show_start_menu()
     screen.fill((BLACK))
     pygame.display.flip()
-
+print(running)
 while running:
     
     for event in pygame.event.get():
@@ -191,14 +194,27 @@ while running:
         
     if ball_y > window_height or ball_y < 10:
         ball_speed_y *= -1    
-        
+    
+    #last_to_hit = 0   
     if ball_x > window_width  or ball_x < 0:
         if ball_x > window_width:
             player_1.point()
+            #last_to_hit = 1   
         elif ball_x < 0:
             player_2.point()
+            #last_to_hit = 2   
         ball_x = 400
         ball_y = 300
+        #ball = pygame.draw.circle(screen, WHITE, (ball_x, ball_y), 10)
+        #pygame.display.flip()
+
+        #waiting = True
+        #while waiting:
+        #    for event in pygame.event.get():
+        #        if event.type == pygame.KEYDOWN:
+        #            
+        #            waiting = False
+                        
 
     ## Move the players ##
     player_1.move(player1_y_speed)
@@ -236,23 +252,17 @@ while running:
         ball_x = window_width / 2
         ball_y = window_height / 2
         
-        result = show_game_over(player_1, player_2, [ball_speed_x, ball_speed_y], running)
-        ball_speed = result["ball"]
-        ball_speed_x = ball_speed[0]
-        ball_speed_y = ball_speed[1]
-        running = result["game_state"]
+        show_game_over()
+        
     #refresh window
     pygame.display.flip()
     #clock set on 60 FPS
     clock.tick(60)
+
     if(not running):
         screen.fill((BLACK))
         pygame.display.flip()
-        result = show_start_menu([ball_speed_x, ball_speed_y], running)
-        running = result["game_state"]
-        ball_speed = result["ball"]
-        ball_speed_x = ball_speed[0]
-        ball_speed_y = ball_speed[1]
+        show_start_menu()
         screen.fill((BLACK))
         pygame.display.flip()
         
